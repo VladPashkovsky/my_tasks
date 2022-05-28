@@ -24,7 +24,15 @@
     line-height: 1.2;
   }
 
-  &Edited, &Removed {
+  &EditTitle {
+    font: 1rem/1.4 'Roboto', sans-serif;
+    border: none;
+    padding: 5px;
+    background: none;
+    box-shadow: 0 4px 0 -3px;
+  }
+
+  &Edited, &Removed, &Save {
     display: block;
     height: 100%;
     border: none;
@@ -44,6 +52,10 @@
 
   &Removed {
     background-image: url("./src/views/images/trash.svg");
+  }
+
+  &Save {
+    background-image: url("./src/views/images/check.svg");
   }
 
 }
