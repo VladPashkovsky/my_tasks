@@ -1,5 +1,6 @@
-import create from 'zustand'
+import create, { State, StateCreator } from 'zustand'
 import { generateId } from '../helpers'
+import { devtools } from 'zustand/middleware'
 
 interface Task {
   id: string,
@@ -14,8 +15,30 @@ interface TasksStore {
   removeTask: (id: string) => void
 }
 
-export const useStore = create<TasksStore>((set, get) => ({
-  tasks: [],
+function isTasksStore(object: any): object is TasksStore {
+  return 'tasks' in object
+}
+
+const localStorageUpdate = <T extends State>(config: StateCreator<T>):
+  StateCreator<T> => (set, get, api) => config((nextState, ...args) => {
+  if (isTasksStore(nextState)) {
+    window.localStorage.setItem('tasks', JSON.stringify(nextState.tasks))
+  }
+  set(nextState, ...args)
+}, get, api)
+
+const getCurrentState = () => {
+  try {
+    const currentState = (JSON.parse(window.localStorage.getItem('tasks') || '[]')) as Task[]
+    return currentState
+  } catch (e) {
+    window.localStorage.getItem('tasks' || '[]')
+  }
+  return []
+}
+
+export const useStore = create<TasksStore>(localStorageUpdate(devtools((set, get) => ({
+  tasks: getCurrentState(),
 
   createTask: (title) => {
     const { tasks } = get()
@@ -32,4 +55,4 @@ export const useStore = create<TasksStore>((set, get) => ({
     const { tasks } = get()
     set({ tasks: tasks.filter(t => (t.id !== id)) })
   },
-}))
+}))))
